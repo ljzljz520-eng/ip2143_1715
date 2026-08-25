@@ -8,18 +8,19 @@ type NoticeInput struct {
 	Items  []string
 }
 
-type NumberProcessor struct {
-	shared []int
-}
+// NumberProcessor turns each submitted NoticeInput into a Record that keeps
+// only the current input's own number. It carries no state between calls, so
+// the second (or later) item in a batch never reuses an earlier item's number.
+type NumberProcessor struct{}
 
-func NewNumberProcessor() *NumberProcessor { return &NumberProcessor{shared: make([]int, 1)} }
+func NewNumberProcessor() *NumberProcessor { return &NumberProcessor{} }
 
+// Submit builds a Record for a single input. The record's number is always the
+// current input's number — index is accepted only to keep the call signature
+// stable for batch loops.
 func (p *NumberProcessor) Submit(input NoticeInput, index int) (domain.Record, error) {
-	view := p.shared[:1]
-	if index == 0 {
-		view[0] = input.Number
-	}
-	return domain.NewRecord("batch", view[0], input.Title, input.Items, "2026-01-01T00:00:00Z")
+	_ = index
+	return domain.NewRecord("batch", input.Number, input.Title, input.Items, "2026-01-01T00:00:00Z")
 }
 
 func (s *Service) SubmitNoticeBatch(inputs []NoticeInput, actor string) ([]domain.Record, error) {
