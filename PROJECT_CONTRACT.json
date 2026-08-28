@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "metrics": {
+    "production_loc": 2321,
+    "production_files": 47,
+    "production_packages": 7,
+    "test_files": 10,
+    "production_functions": 188,
+    "decision_points": 312
+  },
+  "persistence": {
+    "module": "go.etcd.io/bbolt",
+    "entities": ["Record", "AuditEvent", "Workflow", "Attachment"],
+    "reopen_test": "TestPersistenceSurvivesReopen"
+  },
+  "workflows": [
+    {
+      "steps": [
+        "登记当前提示窗及其编号、事项和责任人",
+        "审核提示窗内容并记录审计事件",
+        "确认审核结果并发布当前版本",
+        "归档已发布提示窗并完成生命周期"
+      ],
+      "test": "TestWorkflowCreateReviewArchive"
+    },
+    {
+      "steps": [
+        "按编号、标题或状态查询提示窗",
+        "选择目标提示窗记录",
+        "变更事项并递增记录版本",
+        "发布当前编号的提示窗版本"
+      ],
+      "test": "TestWorkflowSearchUpdatePublish"
+    },
+    {
+      "steps": [
+        "导入JSON或行式安全提示窗材料",
+        "校验编号、标题和事项字段",
+        "持久化Record、Attachment和审计事件",
+        "生成导入摘要、统计和报告"
+      ],
+      "test": "TestWorkflowImportReport"
+    }
+  ]
+}
